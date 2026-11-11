@@ -540,7 +540,7 @@
     document.getElementById('summary').innerHTML = rows.map(([a, b]) => `<div class="row"><span>${a}</span><span>${escapeXml(b)}</span></div>`).join('');
     document.getElementById('total').textContent = '$' + price();
 
-    history.replaceState(null, '', '#' + encodeState());
+    try { history.replaceState(null, '', '#' + encodeState()); } catch {}
   }
 
   // ---------- Share / save ----------
