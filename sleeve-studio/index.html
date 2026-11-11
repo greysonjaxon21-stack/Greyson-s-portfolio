@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sleeve Studio</title>
+<meta name="description" content="Design your own custom male stroker: case, sleeve, texture, fit and extras.">
+<style>
+  :root {
+    --bg: #f6f4f2;
+    --panel: #ffffff;
+    --ink: #1d1a1f;
+    --muted: #6d6672;
+    --line: #e4dfe6;
+    --accent: #b0337a;
+    --accent-ink: #ffffff;
+    --chip: #f1edf2;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141216; --panel: #1d1a20; --ink: #f1edf3; --muted: #a59dab;
+      --line: #322d36; --accent: #e05aa6; --accent-ink: #160b12; --chip: #27222b;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141216; --panel: #1d1a20; --ink: #f1edf3; --muted: #a59dab;
+    --line: #322d36; --accent: #e05aa6; --accent-ink: #160b12; --chip: #27222b;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 16px; max-width: 1180px; margin: 0 auto;
+  }
+  header h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+  header h1 span { color: var(--accent); }
+  .hdr-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font: inherit; cursor: pointer; }
+  .btn {
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    padding: 8px 12px; border-radius: 10px;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  main {
+    max-width: 1180px; margin: 0 auto; padding: 0 16px 32px;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px;
+  }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .preview { position: sticky; top: 12px; align-self: start; padding: 16px; }
+  @media (max-width: 860px) { .preview { position: static; } }
+  .stage {
+    border-radius: 12px; background:
+      radial-gradient(120% 90% at 50% 20%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 70%),
+      var(--chip);
+    display: grid; place-items: center; padding: 8px; aspect-ratio: 4 / 3;
+  }
+  .stage svg { width: 100%; height: 100%; }
+  .view-toggle { display: flex; gap: 6px; margin-top: 12px; }
+  .summary { margin-top: 14px; display: grid; gap: 6px; }
+  .summary .row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .summary .row span:first-child { color: var(--muted); }
+  .total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .total strong { font-size: 26px; }
+  .controls { display: grid; gap: 14px; }
+  .section { padding: 16px; }
+  .section h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .section h3 { font-size: 14px; margin: 14px 0 8px; font-weight: 600; }
+  .section h3:first-of-type { margin-top: 0; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch {
+    width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--panel);
+    outline: 2px solid var(--line); padding: 0;
+  }
+  .swatch[aria-pressed="true"] { outline: 3px solid var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--line); background: var(--chip); color: var(--ink);
+    padding: 7px 12px; border-radius: 999px; font-size: 14px;
+  }
+  .chip small { color: var(--muted); margin-left: 4px; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .chip[aria-pressed="true"] small { color: inherit; opacity: .8; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .tile {
+    border: 1px solid var(--line); background: var(--chip); color: var(--ink);
+    border-radius: 12px; padding: 8px; text-align: left;
+  }
+  .tile svg { width: 100%; height: 46px; display: block; border-radius: 8px; background: var(--panel); }
+  .tile b { display: block; font-size: 13px; margin-top: 6px; }
+  .tile span { font-size: 12px; color: var(--muted); }
+  .tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .range { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; }
+  .range input { width: 100%; accent-color: var(--accent); grid-column: 1 / -1; }
+  .range .val { font-weight: 600; font-size: 14px; }
+  .range .lbl { font-size: 14px; }
+  .ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); grid-column: 1 / -1; }
+  .extras { display: grid; gap: 8px; }
+  .extra {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--chip);
+  }
+  .extra input { accent-color: var(--accent); width: 18px; height: 18px; }
+  .extra .t { flex: 1; }
+  .extra .t div { font-size: 12px; color: var(--muted); }
+  .extra .p { font-weight: 600; font-size: 14px; }
+  .text-in {
+    width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--chip); color: var(--ink); font: inherit;
+  }
+  .saved { display: grid; gap: 6px; margin-top: 8px; }
+  .saved-item { display: flex; gap: 8px; align-items: center; }
+  .saved-item button.name { flex: 1; text-align: left; }
+  .toast {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px;
+    opacity: 0; transition: .2s; pointer-events: none; font-size: 14px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .muted { color: var(--muted); font-size: 13px; }
+  footer { max-width: 1180px; margin: 0 auto; padding: 0 16px 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sleeve <span>Studio</span></h1>
+  <div class="hdr-actions">
+    <button class="btn" id="randomBtn">Surprise me</button>
+    <button class="btn" id="shareBtn">Copy link</button>
+    <button class="btn" id="themeBtn" aria-label="Toggle theme">Theme</button>
+  </div>
+</header>
+
+<main>
+  <section class="card preview" aria-label="Preview">
+    <div class="stage"><svg id="previewSvg" viewBox="0 0 400 300" role="img" aria-label="Preview of your design"></svg></div>
+    <div class="view-toggle chips" id="viewToggle"></div>
+    <div class="summary" id="summary"></div>
+    <div class="total"><span class="muted">Total</span><strong id="total">$0</strong></div>
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <input class="text-in" id="saveName" placeholder="Name this design" maxlength="40">
+      <button class="btn primary" id="saveBtn">Save</button>
+    </div>
+    <div class="saved" id="savedList"></div>
+  </section>
+
+  <div class="controls" id="controls"></div>
+</main>
+
+<footer><p class="muted">Concept configurator. Prices and specs are illustrative.</p></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // ---------- Options ----------
+  const OPT = {
+    caseColor: [
+      { id: 'onyx', name: 'Onyx', hex: '#1f1d22' },
+      { id: 'pearl', name: 'Pearl', hex: '#ece8e3' },
+      { id: 'plum', name: 'Plum', hex: '#5b2a5e' },
+      { id: 'rose', name: 'Rose gold', hex: '#c98f86' },
+      { id: 'navy', name: 'Midnight', hex: '#1f2f56' },
+      { id: 'forest', name: 'Forest', hex: '#2f5a45' },
+      { id: 'crimson', name: 'Crimson', hex: '#9d1f35' },
+      { id: 'sky', name: 'Sky', hex: '#7fb5df' },
+    ],
+    finish: [
+      { id: 'matte', name: 'Matte', price: 0 },
+      { id: 'gloss', name: 'Gloss', price: 4 },
+      { id: 'metal', name: 'Metallic', price: 9 },
+    ],
+    sleeveColor: [
+      { id: 'light', name: 'Light', hex: '#f3c9b6' },
+      { id: 'medium', name: 'Medium', hex: '#d49a7a' },
+      { id: 'tan', name: 'Tan', hex: '#b27756' },
+      { id: 'deep', name: 'Deep', hex: '#7a4a33' },
+      { id: 'clear', name: 'Clear', hex: '#e8f2f5', alpha: .55 },
+      { id: 'pink', name: 'Pink', hex: '#f08cb3' },
+      { id: 'violet', name: 'Violet', hex: '#9d7ae0' },
+      { id: 'glow', name: 'Glow', hex: '#b6f36b' },
+    ],
+    material: [
+      { id: 'tpe', name: 'Soft TPE', note: 'Squishy, budget-friendly', price: 0 },
+      { id: 'silicone', name: 'Platinum silicone', note: 'Body-safe, easy clean', price: 22 },
+      { id: 'gel', name: 'Ultra-soft gel', note: 'Most lifelike feel', price: 14 },
+    ],
+    texture: [
+      { id: 'smooth', name: 'Smooth', note: 'Classic, no texture', price: 0 },
+      { id: 'ribs', name: 'Ribbed rings', note: 'Rhythmic pulses', price: 4 },
+      { id: 'nubs', name: 'Nubs', note: 'Dense bumps', price: 6 },
+      { id: 'spiral', name: 'Spiral', note: 'Twisting grip', price: 6 },
+      { id: 'waves', name: 'Waves', note: 'Rolling ridges', price: 5 },
+      { id: 'chambers', name: 'Multi-chamber', note: 'Varied zones', price: 10 },
+    ],
+    entry: [
+      { id: 'discreet', name: 'Discreet slit', price: 0 },
+      { id: 'round', name: 'Round', price: 0 },
+      { id: 'flower', name: 'Petal', price: 3 },
+    ],
+    length: [
+      { id: 's', name: 'Compact', cm: 15, price: 0 },
+      { id: 'm', name: 'Standard', cm: 20, price: 8 },
+      { id: 'l', name: 'Extended', cm: 25, price: 16 },
+    ],
+    tightness: [
+      { id: 'relaxed', name: 'Relaxed' },
+      { id: 'standard', name: 'Standard' },
+      { id: 'snug', name: 'Snug' },
+    ],
+    extras: [
+      { id: 'suction', name: 'Suction control cap', note: 'Twist to adjust suction', price: 6 },
+      { id: 'vibe', name: 'Vibrating bullet', note: '10 modes, USB rechargeable', price: 18 },
+      { id: 'warm', name: 'Warming insert', note: 'Heats to body temperature', price: 15 },
+      { id: 'travel', name: 'Travel case', note: 'Unbranded, lockable', price: 9 },
+      { id: 'lube', name: 'Water-based lube (100ml)', note: 'Compatible with all sleeves', price: 7 },
+      { id: 'cleaner', name: 'Toy cleaner + drying stick', note: 'Keeps it fresh', price: 8 },
+    ],
+  };
+  const BASE_PRICE = 39;
+
+  const DEFAULT = {
+    caseColor: 'onyx', finish: 'matte', sleeveColor: 'light', material: 'tpe',
+    texture: 'ribs', entry: 'discreet', length: 'm', tightness: 'standard',
+    firmness: 50, extras: ['lube'], engrave: '', view: 'cutaway',
+  };
+
+  let state = loadFromHash() || { ...DEFAULT, extras: [...DEFAULT.extras] };
+  const find = (k, id) => OPT[k].find(o => o.id === id) || OPT[k][0];
+
+  // ---------- Storage helpers (best effort) ----------
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+
+  // ---------- Color helpers ----------
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    const f = v => Math.max(0, Math.min(255, Math.round(amt < 0 ? v * (1 + amt) : v + (255 - v) * amt)));
+    return '#' + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, '0')).join('');
+  }
+
+  // ---------- Texture pattern drawing ----------
+  // Draws texture inside a channel from x0..x1, centred at cy, half-height h.
+  function texturePaths(tex, x0, x1, cy, h, col) {
+    const dark = shade(col, -0.28), light = shade(col, 0.25);
+    let s = '';
+    const len = x1 - x0;
+    if (tex === 'smooth') {
+      s += `<path d="M${x0},${cy - h} L${x1},${cy - h * .9} M${x0},${cy + h} L${x1},${cy + h * .9}" stroke="${dark}" stroke-width="2" fill="none" opacity=".5"/>`;
+    }
+    if (tex === 'ribs') {
+      for (let x = x0 + 8; x < x1 - 4; x += 14) {
+        s += `<path d="M${x},${cy - h} q5,${h} 0,${h * 2}" stroke="${dark}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+        s += `<path d="M${x + 2},${cy - h + 3} q4,${h - 3} 0,${h * 2 - 6}" stroke="${light}" stroke-width="1.2" fill="none" opacity=".7"/>`;
+      }
+    }
+    if (tex === 'nubs') {
+      let row = 0;
+      for (let y = cy - h + 5; y <= cy + h - 4; y += 9, row++) {
+        for (let x = x0 + 6 + (row % 2) * 6; x < x1 - 3; x += 12) {
+          s += `<circle cx="${x}" cy="${y}" r="3.2" fill="${dark}"/><circle cx="${x - 1}" cy="${y - 1}" r="1.2" fill="${light}"/>`;
+        }
+      }
+    }
+    if (tex === 'spiral') {
+      for (let x = x0 - 10; x < x1; x += 16) {
+        s += `<path d="M${x},${cy + h} L${x + 22},${cy - h}" stroke="${dark}" stroke-width="3.5" stroke-linecap="round"/>`;
+        s += `<path d="M${x + 3},${cy + h - 2} L${x + 24},${cy - h + 2}" stroke="${light}" stroke-width="1" opacity=".7"/>`;
+      }
+    }
+    if (tex === 'waves') {
+      for (let i = -2; i <= 2; i++) {
+        const y = cy + i * h * 0.4;
+        let d = `M${x0},${y}`;
+        for (let x = x0; x <= x1; x += 4) d += ` L${x},${y + Math.sin((x - x0) / 9) * 4}`;
+        s += `<path d="${d}" stroke="${dark}" stroke-width="2.5" fill="none"/>`;
+      }
+    }
+    if (tex === 'chambers') {
+      const z = len / 3;
+      // zone 1 ribs, zone 2 nubs, zone 3 spiral, with constriction rings between
+      s += texturePaths('ribs', x0, x0 + z, cy, h, col);
+      s += texturePaths('nubs', x0 + z, x0 + 2 * z, cy, h, col);
+      s += texturePaths('spiral', x0 + 2 * z, x1, cy, h, col);
+      [x0 + z, x0 + 2 * z].forEach(x => {
+        s += `<rect x="${x - 3}" y="${cy - h}" width="6" height="${h * 2}" rx="3" fill="${dark}"/>`;
+      });
+    }
+    return s;
+  }
+
+  // ---------- Main preview ----------
+  function renderPreview() {
+    const svg = document.getElementById('previewSvg');
+    const c = find('caseColor', state.caseColor).hex;
+    const sl = find('sleeveColor', state.sleeveColor);
+    const len = find('length', state.length).cm;
+    const fin = state.finish;
+    const tight = { relaxed: 1.15, standard: 1, snug: 0.8 }[state.tightness];
+    const W = 150 + (len - 15) * 13;           // case length in px
+    const H = 120;                              // case diameter
+    const x0 = 200 - W / 2, x1 = 200 + W / 2, cy = 150;
+    const capW = 26;
+    const chH = 20 * tight;                     // channel half-height
+    const sleeveAlpha = sl.alpha ?? 1;
+    const glow = sl.id === 'glow';
+    const cutaway = state.view === 'cutaway';
+
+    let s = `<defs>
+      <linearGradient id="gCase" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${shade(c, fin === 'matte' ? .12 : .4)}"/>
+        <stop offset="${fin === 'metal' ? .28 : .45}" stop-color="${c}"/>
+        ${fin === 'metal' ? `<stop offset=".5" stop-color="${shade(c, .35)}"/>` : ''}
+        <stop offset="1" stop-color="${shade(c, -.45)}"/>
+      </linearGradient>
+      <linearGradient id="gSleeve" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${shade(sl.hex, .2)}" stop-opacity="${sleeveAlpha}"/>
+        <stop offset="1" stop-color="${shade(sl.hex, -.2)}" stop-opacity="${sleeveAlpha}"/>
+      </linearGradient>
+      <clipPath id="cChannel"><rect x="${x0 + capW + 6}" y="${cy - chH}" width="${W - capW - 26}" height="${chH * 2}" rx="${chH}"/></clipPath>
+      <filter id="fGlow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    </defs>`;
+
+    // floor shadow
+    s += `<ellipse cx="200" cy="${cy + H / 2 + 22}" rx="${W / 2 + 10}" ry="10" fill="#000" opacity=".12"/>`;
+
+    // end cap (bottom / suction end) on the right
+    s += `<rect x="${x1 - 18}" y="${cy - H / 2 + 6}" width="22" height="${H - 12}" rx="10" fill="${shade(c, -.3)}"/>`;
+    if (state.extras.includes('suction')) {
+      s += `<rect x="${x1 + 2}" y="${cy - 16}" width="10" height="32" rx="4" fill="${shade(c, .15)}" stroke="${shade(c, -.4)}"/>`;
+    }
+
+    // case body
+    s += `<rect x="${x0 + capW - 8}" y="${cy - H / 2}" width="${W - capW}" height="${H}" rx="22" fill="url(#gCase)"/>`;
+    if (fin !== 'matte') {
+      s += `<rect x="${x0 + capW + 6}" y="${cy - H / 2 + 10}" width="${W - capW - 40}" height="8" rx="4" fill="#fff" opacity="${fin === 'metal' ? .35 : .28}"/>`;
+    }
+
+    if (cutaway) {
+      // cut window
+      const wx = x0 + capW + 4, ww = W - capW - 22;
+      s += `<rect x="${wx}" y="${cy - H / 2 + 14}" width="${ww}" height="${H - 28}" rx="16" fill="url(#gSleeve)" stroke="${shade(c, -.5)}" stroke-width="2"/>`;
+      if (glow) s += `<rect x="${wx}" y="${cy - H / 2 + 14}" width="${ww}" height="${H - 28}" rx="16" fill="${sl.hex}" opacity=".35" filter="url(#fGlow)"/>`;
+      // channel
+      s += `<rect x="${x0 + capW + 6}" y="${cy - chH}" width="${W - capW - 26}" height="${chH * 2}" rx="${chH}" fill="${shade(sl.hex, -.12)}" opacity="${Math.max(.6, sleeveAlpha)}"/>`;
+      s += `<g clip-path="url(#cChannel)">${texturePaths(state.texture, x0 + capW + 6, x1 - 20, cy, chH, sl.hex)}</g>`;
+      // optional internals
+      if (state.extras.includes('vibe')) {
+        s += `<rect x="${x1 - 64}" y="${cy + chH + 10}" width="34" height="13" rx="6.5" fill="#cfcfd6" stroke="#88889a"/>`;
+      }
+      if (state.extras.includes('warm')) {
+        for (let i = 0; i < 4; i++) {
+          const x = x0 + capW + 40 + i * ((W - capW - 90) / 3);
+          s += `<path d="M${x},${cy - chH - 6} q4,-5 0,-10 q-4,-5 0,-10" stroke="#ff7a45" stroke-width="2" fill="none" opacity=".85"/>`;
+        }
+      }
+    } else if (state.engrave) {
+      s += `<text x="${200 + capW / 2}" y="${cy + 6}" text-anchor="middle" font-size="17" font-weight="600" letter-spacing="2"
+        fill="${shade(c, .45)}" opacity=".8" font-family="ui-sans-serif, system-ui">${escapeXml(state.engrave.toUpperCase())}</text>`;
+    }
+
+    // front cap + entry on left
+    s += `<rect x="${x0}" y="${cy - H / 2 + 4}" width="${capW + 10}" height="${H - 8}" rx="14" fill="${shade(c, -.15)}"/>`;
+    s += `<ellipse cx="${x0 + 4}" cy="${cy}" rx="12" ry="${H / 2 - 8}" fill="url(#gSleeve)" stroke="${shade(c, -.4)}" stroke-width="2"/>`;
+    s += entryShape(state.entry, x0 + 4, cy, sl.hex, tight);
+
+    svg.innerHTML = s;
+  }
+
+  function entryShape(kind, cx, cy, col, tight) {
+    const d = shade(col, -.5);
+    if (kind === 'round') return `<ellipse cx="${cx}" cy="${cy}" rx="3.5" ry="${9 * tight}" fill="${d}"/>`;
+    if (kind === 'flower') {
+      let s = '';
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        s += `<ellipse cx="${cx + Math.cos(a) * 2}" cy="${cy + Math.sin(a) * 9}" rx="3" ry="6" fill="${shade(col, -.22)}"/>`;
+      }
+      return s + `<ellipse cx="${cx}" cy="${cy}" rx="2.2" ry="${5 * tight}" fill="${d}"/>`;
+    }
+    return `<rect x="${cx - 1.5}" y="${cy - 14 * tight}" width="3" height="${28 * tight}" rx="1.5" fill="${d}"/>`;
+  }
+
+  function escapeXml(t) { return t.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
+
+  // ---------- Controls ----------
+  const controls = document.getElementById('controls');
+
+  function section(title, inner) {
+    const el = document.createElement('section');
+    el.className = 'card section';
+    el.innerHTML = `<h2>${title}</h2>`;
+    inner(el);
+    controls.appendChild(el);
+  }
+  function h3(el, t) { const h = document.createElement('h3'); h.textContent = t; el.appendChild(h); }
+
+  function swatchGroup(el, key) {
+    const wrap = document.createElement('div'); wrap.className = 'swatches';
+    OPT[key].forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'swatch'; b.title = o.name; b.setAttribute('aria-label', o.name);
+      b.style.background = o.alpha ? `linear-gradient(135deg, ${o.hex}, #9fc6d1)` : o.hex;
+      b.dataset.key = key; b.dataset.id = o.id;
+      b.onclick = () => set(key, o.id);
+      wrap.appendChild(b);
+    });
+    el.appendChild(wrap);
+  }
+  function chipGroup(el, key, fmt) {
+    const wrap = document.createElement('div'); wrap.className = 'chips';
+    OPT[key].forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.dataset.key = key; b.dataset.id = o.id;
+      b.innerHTML = fmt ? fmt(o) : o.name + (o.price ? `<small>+$${o.price}</small>` : '');
+      b.onclick = () => set(key, o.id);
+      wrap.appendChild(b);
+    });
+    el.appendChild(wrap);
+  }
+  function tileGroup(el, key) {
+    const wrap = document.createElement('div'); wrap.className = 'tiles';
+    OPT[key].forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'tile'; b.dataset.key = key; b.dataset.id = o.id;
+      b.innerHTML = `<svg viewBox="0 0 120 46" data-tex="${o.id}"></svg><b>${o.name}</b><span>${o.note}${o.price ? ` · +$${o.price}` : ''}</span>`;
+      b.onclick = () => set(key, o.id);
+      wrap.appendChild(b);
+    });
+    el.appendChild(wrap);
+  }
+
+  section('Case', el => {
+    h3(el, 'Colour'); swatchGroup(el, 'caseColor');
+    h3(el, 'Finish'); chipGroup(el, 'finish');
+    h3(el, 'Engraving');
+    const inp = document.createElement('input');
+    inp.className = 'text-in'; inp.maxLength = 12; inp.placeholder = 'Up to 12 characters (+$5)';
+    inp.id = 'engrave';
+    inp.oninput = () => { state.engrave = inp.value.replace(/[^\w .\-!&]/g, ''); if (state.engrave) state.view = 'exterior'; update(); };
+    el.appendChild(inp);
+  });
+
+  section('Sleeve', el => {
+    h3(el, 'Colour'); swatchGroup(el, 'sleeveColor');
+    h3(el, 'Material');
+    chipGroup(el, 'material', o => `${o.name}${o.price ? `<small>+$${o.price}</small>` : ''}`);
+    const note = document.createElement('p'); note.className = 'muted'; note.id = 'matNote'; note.style.margin = '8px 0 0';
+    el.appendChild(note);
+    h3(el, 'Firmness');
+    const r = document.createElement('div'); r.className = 'range';
+    r.innerHTML = `<span class="lbl">Softness ↔ firmness</span><span class="val" id="firmVal"></span>
+      <input type="range" min="0" max="100" step="5" id="firm" aria-label="Firmness">
+      <div class="ends"><span>Cloud soft</span><span>Firm grip</span></div>`;
+    el.appendChild(r);
+    r.querySelector('#firm').oninput = e => { state.firmness = +e.target.value; update(); };
+  });
+
+  section('Inside', el => {
+    h3(el, 'Texture'); tileGroup(el, 'texture');
+    h3(el, 'Tightness'); chipGroup(el, 'tightness');
+    h3(el, 'Entry'); chipGroup(el, 'entry');
+    h3(el, 'Length'); chipGroup(el, 'length', o => `${o.name} <small>${o.cm}cm${o.price ? ` · +$${o.price}` : ''}</small>`);
+  });
+
+  section('Extras', el => {
+    const wrap = document.createElement('div'); wrap.className = 'extras';
+    OPT.extras.forEach(o => {
+      const l = document.createElement('label'); l.className = 'extra';
+      l.innerHTML = `<input type="checkbox" data-extra="${o.id}"><span class="t">${o.name}<div>${o.note}</div></span><span class="p">+$${o.price}</span>`;
+      l.querySelector('input').onchange = e => {
+        const on = e.target.checked;
+        state.extras = on ? [...new Set([...state.extras, o.id])] : state.extras.filter(x => x !== o.id);
+        update();
+      };
+      wrap.appendChild(l);
+    });
+    el.appendChild(wrap);
+  });
+
+  // view toggle
+  const vt = document.getElementById('viewToggle');
+  [['cutaway', 'Cutaway'], ['exterior', 'Exterior']].forEach(([id, name]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = name; b.dataset.view = id;
+    b.onclick = () => { state.view = id; update(); };
+    vt.appendChild(b);
+  });
+
+  // draw texture thumbnails once
+  document.querySelectorAll('svg[data-tex]').forEach(svg => {
+    svg.innerHTML = `<clipPath id="tc-${svg.dataset.tex}"><rect x="6" y="8" width="108" height="30" rx="15"/></clipPath>
+      <rect x="6" y="8" width="108" height="30" rx="15" fill="#e7a98f"/>
+      <g clip-path="url(#tc-${svg.dataset.tex})">${texturePaths(svg.dataset.tex, 6, 114, 23, 15, '#e7a98f')}</g>`;
+  });
+
+  // ---------- State ----------
+  function set(k, v) { state[k] = v; if (k === 'texture' || k === 'tightness') state.view = 'cutaway'; update(); }
+
+  function price() {
+    let p = BASE_PRICE;
+    ['finish', 'material', 'texture', 'entry', 'length'].forEach(k => p += find(k, state[k]).price || 0);
+    state.extras.forEach(id => p += (OPT.extras.find(e => e.id === id) || {}).price || 0);
+    if (state.engrave) p += 5;
+    return p;
+  }
+
+  function firmLabel(v) { return v < 25 ? 'Cloud soft' : v < 45 ? 'Soft' : v < 60 ? 'Balanced' : v < 80 ? 'Firm' : 'Extra firm'; }
+
+  function update() {
+    // pressed states
+    document.querySelectorAll('[data-key]').forEach(b => b.setAttribute('aria-pressed', state[b.dataset.key] === b.dataset.id));
+    document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', state.view === b.dataset.view));
+    document.querySelectorAll('[data-extra]').forEach(i => i.checked = state.extras.includes(i.dataset.extra));
+    const firm = document.getElementById('firm'); firm.value = state.firmness;
+    document.getElementById('firmVal').textContent = firmLabel(state.firmness);
+    document.getElementById('matNote').textContent = find('material', state.material).note;
+    const eng = document.getElementById('engrave'); if (eng.value !== state.engrave) eng.value = state.engrave;
+
+    renderPreview();
+
+    const rows = [
+      ['Case', `${find('caseColor', state.caseColor).name}, ${find('finish', state.finish).name.toLowerCase()}`],
+      ['Sleeve', `${find('sleeveColor', state.sleeveColor).name} · ${find('material', state.material).name}`],
+      ['Feel', `${firmLabel(state.firmness)}, ${find('tightness', state.tightness).name.toLowerCase()}`],
+      ['Texture', find('texture', state.texture).name],
+      ['Size', `${find('length', state.length).name} (${find('length', state.length).cm}cm)`],
+      ['Extras', state.extras.length ? state.extras.map(id => OPT.extras.find(e => e.id === id).name).join(', ') : 'None'],
+    ];
+    if (state.engrave) rows.push(['Engraving', `“${state.engrave}”`]);
+    document.getElementById('summary').innerHTML = rows.map(([a, b]) => `<div class="row"><span>${a}</span><span>${escapeXml(b)}</span></div>`).join('');
+    document.getElementById('total').textContent = '$' + price();
+
+    history.replaceState(null, '', '#' + encodeState());
+  }
+
+  // ---------- Share / save ----------
+  function encodeState() { return btoa(unescape(encodeURIComponent(JSON.stringify(state)))); }
+  function loadFromHash() {
+    if (!location.hash || location.hash.length < 4) return null;
+    try {
+      const s = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1)))));
+      return { ...DEFAULT, ...s, extras: Array.isArray(s.extras) ? s.extras : [] };
+    } catch { return null; }
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  document.getElementById('shareBtn').onclick = async () => {
+    try { await navigator.clipboard.writeText(location.href); toast('Link copied'); }
+    catch { toast('Copy the URL from your address bar'); }
+  };
+
+  document.getElementById('randomBtn').onclick = () => {
+    const pick = k => OPT[k][Math.floor(Math.random() * OPT[k].length)].id;
+    ['caseColor', 'finish', 'sleeveColor', 'material', 'texture', 'entry', 'length', 'tightness'].forEach(k => state[k] = pick(k));
+    state.firmness = Math.round(Math.random() * 20) * 5;
+    state.extras = OPT.extras.filter(() => Math.random() < .35).map(e => e.id);
+    state.view = 'cutaway';
+    update();
+  };
+
+  function renderSaved() {
+    const list = store.get('sleeve-studio:saved') || [];
+    const el = document.getElementById('savedList');
+    el.innerHTML = list.length ? '<div class="muted">Saved designs</div>' : '';
+    list.forEach((item, i) => {
+      const row = document.createElement('div'); row.className = 'saved-item';
+      row.innerHTML = `<button class="btn name">${escapeXml(item.name)}</button><button class="btn" aria-label="Delete">✕</button>`;
+      row.children[0].onclick = () => { state = { ...DEFAULT, ...item.state }; update(); toast(`Loaded “${item.name}”`); };
+      row.children[1].onclick = () => { list.splice(i, 1); store.set('sleeve-studio:saved', list); renderSaved(); };
+      el.appendChild(row);
+    });
+  }
+  document.getElementById('saveBtn').onclick = () => {
+    const nameIn = document.getElementById('saveName');
+    const list = store.get('sleeve-studio:saved') || [];
+    const name = nameIn.value.trim() || `Design ${list.length + 1}`;
+    list.unshift({ name, state: JSON.parse(JSON.stringify(state)) });
+    store.set('sleeve-studio:saved', list.slice(0, 12));
+    nameIn.value = ''; renderSaved(); toast('Saved');
+  };
+
+  // theme
+  document.getElementById('themeBtn').onclick = () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    store.set('sleeve-studio:theme', root.dataset.theme);
+  };
+  const th = store.get('sleeve-studio:theme'); if (th) document.documentElement.dataset.theme = th;
+
+  renderSaved();
+  update();
+})();
+</script>
+</body>
+</html>
